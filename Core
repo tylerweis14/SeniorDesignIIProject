@@ -3,10 +3,8 @@ from scipy.interpolate import interp1d
 from scipy.integrate import ode
 from scipy.integrate import odeint
 from scipy.integrate import solve_ivp
-r1=1
-r2=1
-Demand=[]
-Time=[]
+
+
 def dydt(t,y, params):
     x, y, z_f, z_c=y
     alpha,lamb,beta,c_pf,c_pc,m_f,m_c,W_ce,T_cine,a_f,n_e,alpha_f,alpha_c,h=params
@@ -29,23 +27,6 @@ def dydt(t,y, params):
 
     return derivs
 
-'''
-alpha=0.001
-lamb=0.1
-beta=7.5*10**-3
-c_pf=200
-c_pc=4000.0
-m_f=40000.0
-m_c=7000.0
-W_ce=8000.0
-T_cine=550.0
-a_f=7.0*10**6
-n_e=200.0
-alpha_f=-10.0**-5
-alpha_c=-5.0*10**-5
-h=4.0*10**6
-'''
-
 alpha=0.001
 lamb=0.1
 beta=7.5*10**-3
@@ -57,21 +38,13 @@ W_ce=1300 #mass flow rate
 T_cine=600 #Temperature in
 a_f=7.0e6
 n_e=200.0
-alpha_f=-3.8e-5 #
-alpha_c=-1.8e-5
-h=4700*1940
+alpha_f=-3.8e-5 #Change in reactivity based on temp of fuel
+alpha_c=-1.8e-5 #Change in reactivity based on temp for moderator
+h=4700*1940 #heat transfer coefficient and total area of fuel
 Rf = .0005 #fouling factor
 
 
-def tempoutput(params2):
-    c_pc,W_ce,T_cine,a_f,h=params2
-    T_fe=T_cine+(1/(2*W_ce*c_pc)+(1/h))*a_f*n_e #equillibrium of fuel temp
-    T_ce=T_cine+(a_f*n_e/(2*W_ce*c_pc)) #equillibrium of coolant temp
-    Tout = (T_fe-T_ce)/(Rf*W_ce*c_pc) + 650
-    power = W_ce*c_pc*(Tout-T_cine)
-    return Tout, power/1e6
-    
-params2 = [c_pc,W_ce,T_cine,a_f,h]    
+
 params=[alpha,lamb,beta,c_pf,c_pc,m_f,m_c,W_ce,T_cine,a_f,n_e,alpha_f,alpha_c,h]
 x0=0.0 #starting neutron pop
 y0=0.0 #starting precursors
@@ -94,3 +67,13 @@ while r.successful() and r.t < t1:
     A=np.append(A,r.y)
 #print np.size(A)
 B= A.reshape(np.size(T),4)
+
+def tempoutput(params2):
+    c_pc,W_ce,T_cine,a_f,h=params2
+    T_fe=T_cine+(1/(2*W_ce*c_pc)+(1/h))*a_f*n_e #equillibrium of fuel temp
+    T_ce=T_cine+(a_f*n_e/(2*W_ce*c_pc)) #equillibrium of coolant temp
+    Tout = (T_fe-T_ce)/(Rf*W_ce*c_pc) + 650
+    power = W_ce*c_pc*(Tout-T_cine)
+    return Tout, power/1e6
+    
+params2 = [c_pc,W_ce,T_cine,a_f,h]    
