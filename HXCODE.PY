@@ -224,7 +224,41 @@ while U/U_guess<0.99 or U/U_guess>1.01 :
     
     
     i= i+1 
-        
+    # Calculating the estimation of Equipment Cost
+#  
+#    C_b= np.exp(8.202+0.0156*np.log(A_req) + (0.0681*(np.log(A_req))**2)) #Base cost
+#    F_d= np.exp(-0.903 + 0.906*np.log(A_req))  #Fixed Head Cost Factor
+#    F_p= 0.895 + 0.4981*np.log(A_req) #Pressure Cost Factor
+#    F_m= 1.4144 +  0.23296*np.log(A_req) #Material Cost Factor (SS316)
+#    cost_tot= C_b*F_d*F_p*F_m
+#    
+#    print ('the total area is ', A_req)
+#    print('the number of tubes', N_t)
+#    print ('the total cost is ', cost_tot)
+    
+    #calculating efficiency
+    C_c=c_pc*mdot_c 
+    C_h=c_ph*mdot_h
+    C_min=min(C_c,C_h)
+    Cr=C_h/C_c
+    NTU= U*A_req/C_min
+    Fa=NTU*np.sqrt(1+Cr**2)/2 #This fin analogy for one shell pass only
+    eff=np.tanh(Fa)/Fa # efficiency
+    
+    #pumping power calculation
+    P=(1/eff)*((mdot_c*DeltaP_Tube/rho_c)+(mdot_h*DeltaP_Shell/rho_h))
+    
+    # Calculating cost 
+    
+    tau= 7920 # hours operating
+    K_el= 0.013 #EUR/kWh
+    cost_elec=1.08*K_el*tau*(P/1000) #electricity cost
+    
+
+    
+    
+    
+            
 
 
 
@@ -232,4 +266,7 @@ print('The overall heat transfer coefficient is', U,'W/m^2K')
 print('The shellside pressure drop is',DeltaP_Shell,'Pa')
 print('The tubeside pressure drop is',DeltaP_Tube,'Pa')
 print('The effectiveness is',R)
+print('The efficiency is ',eff)
+print('The pumping power required is ',P)
+print ('The cost electricity is ',cost_elec, 'USD')
        
