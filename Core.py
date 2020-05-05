@@ -6,6 +6,32 @@ from scipy.integrate import solve_ivp
 
 
 def dydt(t,y, params):
+    '''
+    
+
+    Parameters
+    ----------
+    params : alpha= #average neutron life time
+    lamb= #decay constant
+    beta= #delayed neutron fraction
+    c_pf= #specific heat of moderator
+    c_pc= #specific heat of coolant
+    m_f=#mass of fuel
+    m_c=#mass of coolant
+    W_ce=#mass flow rate
+    T_cine=#Temperature in
+    a_f=#neutrons to thermal factor
+    n_e= #scaling for power at equillibrium
+    alpha_f= #Change in reactivity based on temp of fuel
+    alpha_c=#Change in reactivity based on temp for moderator
+    h=#heat transfer coefficient and total area of fuel
+    Rf =#fouling factor
+
+    Returns
+    -------
+    derivs : change in neutron density, precursor density, fuel temp, coolant temp
+
+    '''
     x, y, z_f, z_c=y
     alpha,lamb,beta,c_pf,c_pc,m_f,m_c,W_ce,T_cine,a_f,n_e,alpha_f,alpha_c,h=params
 
@@ -28,7 +54,7 @@ def dydt(t,y, params):
 
     return derivs
 
-alpha=0.001 
+alpha=0.001 #average neutron life time
 lamb=0.1 #decay constant
 beta=7.5*10**-3 #delayed neutron fraction
 c_pf=717 #specific heat of graphite moderator
@@ -72,13 +98,31 @@ B= A.reshape(np.size(T),4)
 finaltempchange = sum(B[:,3])
 
 def tempoutput(params2):
+    '''
+    
+
+    Parameters
+    ----------
+    params2 : 
+        c_pc - Specific heat of coolant
+        W_ce - mass flow rate
+        T_cine - Equillibrium temp of coolant inlet
+        a_f - neutrons to thermal factor
+        h - heat transfer coefficient
+        finaltempchange - found from dydt and is the total change in temp of coolant
+
+    Returns
+    -------
+    Tout : Temperature out of reactor
+    power
+    '''
     c_pc,W_ce,T_cine,a_f,h,finaltempchange=params2
     T_fe=T_cine+(1/(2*W_ce*c_pc)+(1/h))*a_f*n_e #equillibrium of fuel temp
     T_ce=T_cine+(a_f*n_e/(2*W_ce*c_pc)) #equillibrium of coolant temp
     Tout = (T_fe-T_ce)/(Rf*W_ce*c_pc) + T_ce + finaltempchange
     power = W_ce*c_pc*(Tout-T_cine)
     return Tout, power/1e7
-    
+
 params2 = [c_pc,W_ce,T_cine,a_f,h,finaltempchange]    
 
 
