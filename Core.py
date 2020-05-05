@@ -11,8 +11,8 @@ def dydt(t,y, params):
 
     T_fe=T_cine+(1/(2*W_ce*c_pc)+(1/h))*a_f*n_e #equillibrium of fuel temp
     T_ce=T_cine+(a_f*n_e/(2*W_ce*c_pc)) #equillibrium of coolant temp
-    u=(650-T_cine)/T_cine
-    w=(1300-W_ce)/W_ce
+    u=(T_cine-T_cine)/T_cine
+    w=(1500-W_ce)/W_ce
     Power = 1 #percentage
     p_c=(Power-(x))*10
     p=p_c+alpha_c*T_ce*z_c+alpha_f*T_fe*z_f
@@ -21,23 +21,24 @@ def dydt(t,y, params):
     dydt1 = -(beta*x/alpha)+(beta*y/alpha)+(p/alpha)+(p*x/alpha)
     dydt2 = (x-y)*lamb
     dydt3 = ((a_f*n_e*x)/(m_f*c_pf*T_fe))-(h*z_f/(m_f*c_pf))+(h*T_ce*z_c/(m_f*c_pf*T_fe))
-    dydt4 = (h*T_fe*z_f/(m_c*c_pc*T_ce))-((2*c_pc*W_ce+h)*z_c/(m_c*c_pc))+((2*W_ce*T_cine*u)/(m_c*T_ce))-(2*W_ce*w*(T_ce-T_cine)/(m_c*T_ce))-(2*W_ce*w*z_c/m_c)+(2*W_ce*T_cine*u*w/(m_c*T_ce))
+    dydt4 = (h*T_fe*z_f/(m_c*c_pc*T_ce))-((2*c_pc*W_ce+h)*z_c/(m_c*c_pc))+((2*W_ce*T_cine*u)/(m_c*T_ce))
+    -(2*W_ce*w*(T_ce-T_cine)/(m_c*T_ce))-(2*W_ce*w*z_c/m_c)+(2*W_ce*T_cine*u*w/(m_c*T_ce))
     
     derivs=[dydt1, dydt2, dydt3, dydt4]
 
     return derivs
 
-alpha=0.001
-lamb=0.1
-beta=7.5*10**-3
+alpha=0.001 
+lamb=0.1 #decay constant
+beta=7.5*10**-3 #delayed neutron fraction
 c_pf=717 #specific heat of graphite moderator
 c_pc=2414.7 #specific heat of FliBE
 m_f=470000*(1.5/1000) #mass of u235 in 470,000 pellets
 m_c=90830.8 #mass of coolant
-W_ce=1300 #mass flow rate
+W_ce=1500 #mass flow rate
 T_cine=600 #Temperature in
-a_f=7.0e6
-n_e=200.0
+a_f=7.0e6 #neutrons to thermal factor
+n_e=200.0 #scaling for power at equillibrium
 alpha_f=-3.8e-5 #Change in reactivity based on temp of fuel
 alpha_c=-1.8e-5 #Change in reactivity based on temp for moderator
 h=4700*1940 #heat transfer coefficient and total area of fuel
@@ -68,12 +69,19 @@ while r.successful() and r.t < t1:
 #print np.size(A)
 B= A.reshape(np.size(T),4)
 
+finaltempchange = sum(B[:,3])
+
 def tempoutput(params2):
-    c_pc,W_ce,T_cine,a_f,h=params2
+    c_pc,W_ce,T_cine,a_f,h,finaltempchange=params2
     T_fe=T_cine+(1/(2*W_ce*c_pc)+(1/h))*a_f*n_e #equillibrium of fuel temp
     T_ce=T_cine+(a_f*n_e/(2*W_ce*c_pc)) #equillibrium of coolant temp
-    Tout = (T_fe-T_ce)/(Rf*W_ce*c_pc) + 650
+    Tout = (T_fe-T_ce)/(Rf*W_ce*c_pc) + T_ce + finaltempchange
     power = W_ce*c_pc*(Tout-T_cine)
-    return Tout, power/1e6
+    return Tout, power/1e7
     
-params2 = [c_pc,W_ce,T_cine,a_f,h]    
+params2 = [c_pc,W_ce,T_cine,a_f,h,finaltempchange]    
+
+
+Finaltemperature = tempoutput(params2)[0]
+
+
