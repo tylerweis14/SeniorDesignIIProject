@@ -11,7 +11,7 @@ Created on Wed Apr 22 20:57:11 2020
 import numpy as np
 
 
-CHOICE= 1 ### 1== Shell & Tube HX and 2== Printed Circuit Heat Exchanger
+CHOICE= 2 ### 1== Shell & Tube HX and 2== Printed Circuit Heat Exchanger
  
 T_h_in= 923 #ALL TEMPERATURES LISTED IN KELVIN, K 
 T_c_in= 573
@@ -50,7 +50,7 @@ v_tube_guess= 1.5  #Tube velocity in m/s
 #Energy Balance 
 
 mdot_h= 1500 #mass flow rate in kg/s 
-mdot_c= 2400 
+mdot_c= 1550 
 Qdot= mdot_c*c_pc*(T_c_out-T_c_in)
 T_h_out= T_h_in-mdot_c*c_pc*(T_c_out-T_c_in)/(mdot_h*c_ph)
 
@@ -193,7 +193,7 @@ if CHOICE==1:
         
         R_L= np.exp(-1.33*(1+r_s))*r_lm**x 
         
-        DeltaP_h= ((N-1)*DeltaP_CI*R_B+N*DeltaP_WI)*R_L+2*DeltaP_CI*R_B*(1+N_cw/N_c)
+        DeltaP_h= (((N-1)*DeltaP_CI*R_B+N*DeltaP_WI)*R_L+2*DeltaP_CI*R_B*(1+N_cw/N_c))/100000
         #PRESSURE DROP IN PASCALS or N/m^2 
         
         #Tubeside HT Coefficient 
@@ -230,7 +230,7 @@ if CHOICE==1:
         if Re_tube>2300: 
             f_0= 0.079*Re_tube**-0.25 
         
-        DeltaP_c= 4*f_0*L_tube*N_p*Mdot**2/(2*d_i*rho_c)
+        DeltaP_c= 4*f_0*L_tube*N_p*Mdot**2/(100000*2*d_i*rho_c)
         
         
         i= i+1 
@@ -239,8 +239,8 @@ if CHOICE==1:
     
     
     print('The overall heat transfer coefficient is', U,'W/m^2K')
-    print('The shellside pressure drop is',DeltaP_h,'Pa')
-    print('The tubeside pressure drop is',DeltaP_c,'Pa')
+    print('The shellside pressure drop is',DeltaP_h,'bar')
+    print('The tubeside pressure drop is',DeltaP_c,'bar')
     print('The effectiveness is',R)
 
 if CHOICE==2: 
@@ -251,7 +251,7 @@ if CHOICE==2:
     #cHANNEL PROPERTIES 
     
     d_pche= 0.003 #channel diameter in meters 
-    v_pche_guess= 1   #channel velocity in m/s 
+    v_pche_guess= 1.5   #channel velocity in m/s 
     t_p= 0.00317  #ratio between channel diameter and plate thickness 
     p_pche= 1.1*d_pche #pitch between two horizontal channels in m 
     t_wall= 0.00317 #wall thickness in meters
@@ -274,7 +274,7 @@ if CHOICE==2:
     
     #SIZING 
     
-    A_channel= np.pi*d_pche**2/A_front_pche #Cross-sectional area of channel in m^2
+    A_channel= np.pi*(d_pche**2)/8 #Cross-sectional area of channel in m^2
     
     N_channels= 2*A_front_pche/A_channel #Total number of channels 
     
@@ -326,12 +326,12 @@ if CHOICE==2:
     if Re_c>2300: 
         f_ic= 0.478*Re_c**(-0.26)
         
-    DeltaP_h= 2*f_ih*L_pche*rho_h*(v_pche_h**2)/D_h  #pressure drop on hot-side in Pa
-    DeltaP_c= 2*f_ic*L_pche*rho_c*(v_pche_c**2)/D_h  #pressure drop on hot-side in Pa
+    DeltaP_h= 2*f_ih*L_pche*rho_h*(v_pche_h**2)/(D_h*100000)  #pressure drop on hot-side in Pa
+    DeltaP_c= 2*f_ic*L_pche*rho_c*(v_pche_c**2)/(D_h*100000)  #pressure drop on hot-side in Pa
     
     print('PCHE- The overall heat transfer coefficient is', U,'W/m^2K')
-    print('PCHE- The hot-side pressure drop is',DeltaP_h,'Pa')
-    print('PCHE- The cold-side pressure drop is',DeltaP_c,'Pa')
+    print('PCHE- The hot-side pressure drop is',DeltaP_h,'bar')
+    print('PCHE- The cold-side pressure drop is',DeltaP_c,'bar')
 
 # Calculating the estimation of Equipment Cost
 #  
