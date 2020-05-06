@@ -339,11 +339,11 @@ if CHOICE==2:
 #    F_d= np.exp(-0.903 + 0.906*np.log(A_req))  #Fixed Head Cost Factor
 #    F_p= 0.895 + 0.4981*np.log(A_req) #Pressure Cost Factor
 #    F_m= 1.4144 +  0.23296*np.log(A_req) #Material Cost Factor (SS316)
+#    cost_in_2020= 740.0/567.7 # ratio between index of 2020 and index of 2015
 #    cost_tot= C_b*F_d*F_p*F_m
 #    
 #    print ('the total area is ', A_req)
-#    print('the number of tubes', N_t)
-#    print ('the total cost is ', cost_tot)
+
     
     #calculating efficiency
     
@@ -362,8 +362,8 @@ P_=(1/eff)*((mdot_c*DeltaP_c/rho_c)+(mdot_h*DeltaP_h/rho_h))
 # Calculating cost 
 
 tau= 7920 # hours operating
-K_el= 0.013 #EUR/kWh
-cost_elec=1.08*K_el*tau*(P_/1000) #electricity cost
+K_el= 0.1319 #USD/kWh as of April 2020
+cost_elec=K_el*tau*(P_/1000) #electricity cost
 
 
 print('The efficiency is ',eff)
